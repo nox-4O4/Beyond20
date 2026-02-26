@@ -195,6 +195,16 @@
 				"libs/jquery-3.4.1.min.js",
 				"dist/roll20.js"
 			]
+		},
+		{
+			"matches": [
+				"*://*.dndbeyond.com/characters/*"
+			],
+			"js": [
+				"dist/dndbeyond_character_main.js"
+			],
+			"run_at": "document_start",
+			"world": "MAIN"
 		}
 	]
 }

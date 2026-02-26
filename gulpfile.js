@@ -122,11 +122,15 @@ const SRC_FILES = {
     ],
     dndbeyond_character: [
         ...DNDBEYOND_PAGE_DEPS,
+        "src/dndbeyond/base/api.js",
         "src/dndbeyond/base/spell.js",
         "src/dndbeyond/base/monster.js",
         "src/dndbeyond/base/extras.js",
         "src/dndbeyond/base/character.js",
         "src/dndbeyond/content-scripts/character.js",
+    ],
+    dndbeyond_character_main: [
+        "src/dndbeyond/content-scripts/character_main.js",
     ],
     dndbeyond_source: [
         ...DNDBEYOND_PAGE_DEPS,

@@ -1068,3 +1068,60 @@ function getQuickRollTooltip() {
     }
     return beyond20_tooltip;
 }
+
+/* rollType can be
+ *     - "roll" (for custom rolls or initiative)
+ *     - "check" (for skill checks, use action to specify skill)
+ *     - "save" (for saving throws, use action to specify saving throw type)
+ *     - "to hit" for hit checks
+ *     - "damage" for a damage roll
+ *     - any other value that we want to turn up in the game log
+ *
+ * action can be
+ *     - "custom" for custom rolls
+ *     - "Initiative" for initiative rolls
+ *     - "str", "int", "dex", "wis", "con", "cha" for skill checks and saving throws
+ *     - "Death" for death saving throws
+ *     - skill names such as "Acrobatics", "Arcana", etc. for skill checks
+ *     - weapon names for "to hit" checks and "damage" rolls
+ *     - any other value that we want to turn up in the game log
+ *
+ * rollKind can be one of
+ *     - "advantage" to roll with advantage
+ *     - "disadvantage" to roll with disadvantage
+ *     - "critical hit" to roll twice the amount of dice
+ *     - any other value is ignored
+ *
+ * valueOverride is an optional integer which forces the dice to roll a specific value, e.g., to force max results for critical hits (depending on rules)
+ *
+ * Examples:
+ *     - to roll for an "Animal Handling" check with +5 bonus use rollWithHelper("1d20+5", "check", "Animal Handling")
+ *     - to roll for a simple dex check with no bonus use rollWithHelper("1d20", "check", "dex")
+ */
+async function rollWithHelper(diceFormula, rollType = "roll", action = "custom", rollKind = "", valueOverride = undefined) {
+    const rollHelper = window[Symbol.for("@/helpers/rollDice")]
+    if (!rollHelper) {
+        console.log("Roll helper not initialized!");
+        return;
+    }
+
+    // get the dice set that the user has currently configured and the character info using API
+    const config = await api.fetchInfo(),
+        characterId = location.pathname.split("/").pop(),
+        character = config.characters.find(c => c.id == characterId); // we DON'T want to use strict comparison here as we want to find the right character regardless if we got it's id as a string or as an integer
+
+    return rollHelper.rollDice({
+        action,
+        rollType,
+        rollKind,
+        valueOverride,
+        diceNotation: diceFormula,
+        entityId: characterId,
+        entityType: "character",
+        userId: config.userId,
+        isShared3dDiceEnabled: JSON.parse(localStorage.isShared3dDiceEnabled).state[config.userId], // TODO fallback to true in case local storage entry is invalid / unset
+        setId: JSON.parse(localStorage.userDiceData).state[config.userId].setId, // TODO fallback to config.diceSetId when local storage entry is invalid / unset
+        name: character.name,
+        avatarUrl: character.avatarUrl,
+    }, /*hasPddErrored*/ false, /*isPddReady*/ true); // pdd stands for pocked dimension dice
+}
